@@ -31,21 +31,39 @@
 + 如果想知道如何发布`npm包组织`(也就是类似`@web-tracing/react`这样的),请移步`发布npm库`篇
 
 ### 目录和准备
-``` 
-|-- example-rollup
-    |-- .babelrc                    # babel配置文件
-    |-- package-lock.json
+``` js
+|-- demo
+    |-- lerna.json // lerna 配置文件
     |-- package.json
-    |-- yarn.lock
-    |-- build                       # 打包配置文件
-    |   |-- rollup.config.build.js  # 生产模式配置
-    |   |-- rollup.config.dev.js    # 开发模式配置
-    |   |-- rollup.config.js        # 基础打包配置
-    |-- dist                        # 包的输出目录
-    |-- example                     # 测试目录
-    |   |-- index.html
-    |-- src                         # 包的源代码
-        |-- index.js
+    |-- packages
+        |-- react // react分支包
+        |   |-- package.json
+        |   |-- build
+        |   |   |-- rollup.config.build.js
+        |   |   |-- rollup.config.dev.js
+        |   |   |-- rollup.config.js
+        |   |-- dist
+        |   |   |-- index.cjs.js
+        |   |   |-- index.esm.js
+        |   |   |-- index.umd.js
+        |   |-- example
+        |   |   |-- index.html
+        |   |-- src
+        |       |-- index.js
+        |-- web-tracing // 核心包
+            |-- package.json
+            |-- build
+            |   |-- rollup.config.build.js
+            |   |-- rollup.config.dev.js
+            |   |-- rollup.config.js
+            |-- dist
+            |   |-- index.cjs.js
+            |   |-- index.esm.js
+            |   |-- index.umd.js
+            |-- example
+            |   |-- index.html
+            |-- src
+                |-- index.js
 ```
 
 安装对应编译的npm模块
@@ -67,22 +85,22 @@ npm i lerna -D
     // (注意: 在拉取别人的lerna项目下来时只需要在根目录运行这个命令就行了,不要手动去各个包目录下安装依赖)
     "install": "lerna bootstrap",
 
-    // 在各个包下面执行`npm run dev`,scope表示区间,lerna exec比lerna run更灵活
+    // 在各个包下面执行`npm run dev`,lerna exec比lerna run更灵活
     "dev": "lerna exec --scope=web-tracing -- npm run dev",
 
-    // 在各个包下面执行`npm run dev`,scope表示区间
+    // 在各个包下面执行`npm run dev`
     "dev:vue": "lerna run --scope=web-tracing --scope=@web-tracing/vue dev --parallel",
 
-    // 在各个包下执行`npm run build`命令,--stream表示打包时终端显示包名
+    // 在各个包下执行`npm run build`命令
     "build": "lerna run build --sort --stream",
 
-    // 更改各个包的版本号,--no-push 不提交,--no-changelog 不生成提交记录,--no-git-tag-version 不打tag
+    // 更改各个包的版本号
     "update-version": "lerna version --conventional-commits --no-push --no-changelog --no-git-tag-version",
 
     // 更改各个包的版本号,不同于上一个,此命令能让你自由选择想要的版本号
     "update-version-p": "lerna version --conventional-prerelease --no-push --no-changelog --no-git-tag-version",
 
-    // 发布各个包,前提是有commit提交记录的才会发布,发布版本会依赖于当前 package.json 中的 version
+    // 发布各个包,发布版本会依赖于当前 package.json 中的 version
     "publish-to-npm": "lerna publish from-package",
 
     // 发布各个包,也要求有提交记录,此发布是发布到 beta 测试版本
@@ -93,6 +111,12 @@ npm i lerna -D
   ]
 }
 ```
+此配置中后缀含义:
++ --parallel 完全忽略并发和拓扑排序, 立即运行给定的命令或脚本
++ --stream 控制台输出信息, 主要是可以前缀为原始包名称, 在执行多个包的相同命令时加上这个能方便出哪个包的输出
++ --sort 拓扑排序执行
++ --conventional-commits 意思是使用"常规提交规范"来确定版本提升 (lerna version 使用)
++ --no-git-tag-version 不更改package.json 中的版本号信息以及不会提交
 
 ### 使用
 + 创建包
@@ -191,3 +215,11 @@ lerna调用了他们各自的`build`命令
 
 > 发布之前一定要先打包! ! ! ! !
 > 当然你也可以配置更适合你的,我这个可能还是比较复杂了
+
+### 补充
++ update-version 在更改版本号的时候是自动取下个版本的,例如 0.0.0 => 0.0.1 / 0.0.0-beta.0  => 0.0.0-beta.1 
++ update-version-p 更改版本号能有更多选择,选项中选择 custom prerelease 能发布预览版,如果想自定义版本选项中选择 custom Version
++ 执行 publish-to-npm,这个命令是不会再自动更改版本号,会根据 package.json 中的版本号来发布
++ publish-beta: 提交测试包, 此命令并不会更新目标包的版本,是无痕的,只会在远程npm更新tag 为 beta的包
+注意, 此命令会把当前工作区清空,回退, 请使用前提交好代码(commit)
++ 在某个库的分支包中如果依赖于核心包,一定要放在 dependencies 中
