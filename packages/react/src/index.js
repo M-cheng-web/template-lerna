@@ -1,4 +1,4 @@
-import webtracing from 'web-tracing';
+import webtracing from 'web-tracing-demo';
 
 const fun = () => {
   const obj = {
