@@ -21,9 +21,6 @@ export default {
       format: 'umd',
       name: 'webtracing',
       sourcemap: true,
-      globals: {
-        'web-tracing': 'webtracing',
-      },
     },
   ],
   plugins: [
@@ -33,5 +30,4 @@ export default {
       exclude: 'node_modules/**'
     }),
   ],
-  external: ['web-tracing'],
 };

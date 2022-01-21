@@ -6,11 +6,13 @@
   "jsdelivr": "dist/index.umd.js",
   "scripts": {
     "dev": "rollup -c build/rollup.config.dev.js -w",
-    "build": "rollup -c build/rollup.config.build.js"
+    "build": "rollup -c build/rollup.config.build.js",
+    "rm-dist": "rimraf dist"
   },
   "devDependencies": {
     "@babel/core": "^7.10.2",
     "@babel/preset-env": "^7.10.2",
+    "rimraf": "^3.0.2",
     "rollup": "^2.15.0",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-json": "^4.0.0",
